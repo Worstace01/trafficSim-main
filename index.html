@@ -3,89 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Traffic Simulation & Flow Optimizer</title>
-    <meta name="description" content="An interactive traffic simulation and congestion optimization model. Built by Andrie Deuna.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Traffic Simulation — Andrie Deuna</title>
+    <meta name="description" content="A Python-based traffic simulation program modeling vehicle flow and intersection management. Built by Andrie Deuna.">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Space Grotesk', sans-serif; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --cyan: #06b6d4;
+            --cyan-light: #22d3ee;
+            --bg: #020617;
+            --surface: #0f172a;
+            --border: #1e293b;
+            --text: #f1f5f9;
+            --muted: #64748b;
+        }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15,23,42,0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--cyan), #0891b2);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+        }
+        .logo-text { font-weight: 700; font-size: 1.1rem; color: var(--text); }
+        .header-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            background: var(--surface);
+        }
+        .header-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+        .hero {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem 2rem;
+            text-align: center;
+        }
+        .badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: rgba(6,182,212,0.1);
+            border: 1px solid rgba(6,182,212,0.3);
+            color: var(--cyan-light);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #e0f2fe, var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle { color: var(--muted); font-size: 1.1rem; max-width: 550px; margin: 0 auto 2rem; }
+        .tech-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2.5rem; }
+        .tag {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 0.35rem 0.9rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .btn-group { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.85rem 1.75rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan), #0891b2);
+            color: #020617;
+            box-shadow: 0 4px 20px rgba(6,182,212,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(6,182,212,0.4); }
+        .btn-secondary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+        .screenshot-section {
+            max-width: 900px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+        }
+        .section-label {
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+        }
+        .main-screenshot {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .main-screenshot img {
+            width: 100%; display: block;
+        }
+        .features {
+            max-width: 900px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+        }
+        .features h2 {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+        .feature-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .feature-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.3rem; }
+        .feature-desc { font-size: 0.82rem; color: var(--muted); }
+        .source-link-section {
+            max-width: 900px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+            text-align: center;
+        }
+        .source-card {
+            background: var(--surface);
+            border: 1px solid rgba(6,182,212,0.2);
+            border-radius: 16px;
+            padding: 2.5rem;
+        }
+        .source-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .source-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+        footer a { color: var(--cyan); text-decoration: none; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-4 sm:p-6 select-none">
+<body>
 
-    <!-- Header -->
-    <header class="max-w-5xl w-full mx-auto flex justify-between items-center bg-slate-900/80 backdrop-blur-md px-6 py-4 rounded-2xl border border-slate-800 shadow-2xl">
-        <div class="flex items-center gap-3">
-            <div class="w-11 h-11 bg-cyan-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg shadow-cyan-600/30">
-                🚦
-            </div>
-            <div>
-                <h1 class="text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400">Traffic Flow Simulator</h1>
-                <p class="text-xs text-slate-400">Congestion & Route Optimization Model</p>
-            </div>
+<header>
+    <a class="logo" href="https://worstace01.github.io/personal-portfolio/">
+        <div class="logo-icon">🚦</div>
+        <span class="logo-text">Traffic Simulation</span>
+    </a>
+    <a class="header-btn" href="https://github.com/Worstace01/trafficSim-main" target="_blank">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+        View Source Code
+    </a>
+</header>
+
+<section class="hero">
+    <div class="badge">🐍 Python Simulation</div>
+    <h1>Traffic Flow Simulation</h1>
+    <p class="subtitle">A Python-based traffic simulation modeling vehicle movement, intersection timing, and congestion. Developed by <strong>Andrie Deuna</strong>.</p>
+    <div class="tech-tags">
+        <span class="tag">Python</span>
+        <span class="tag">Pygame</span>
+        <span class="tag">Simulation</span>
+        <span class="tag">Algorithms</span>
+        <span class="tag">Desktop App</span>
+    </div>
+    <div class="btn-group">
+        <a class="btn btn-primary" href="https://github.com/Worstace01/trafficSim-main/tree/main/trafficSim-main/TRAFFIC-SIM-FINAL-main" target="_blank">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Browse Source Code
+        </a>
+        <a class="btn btn-secondary" href="https://worstace01.github.io/personal-portfolio/" target="_blank">
+            ← Back to Portfolio
+        </a>
+    </div>
+</section>
+
+<section class="screenshot-section">
+    <div class="section-label">📸 App Screenshot</div>
+    <div class="main-screenshot">
+        <img src="trafficSim-main/TRAFFIC-SIM-FINAL-main/images/Intersection.png" alt="Traffic Simulation Intersection View">
+    </div>
+</section>
+
+<section class="features">
+    <h2>How It Works</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🚗</div>
+            <div class="feature-title">Vehicle Simulation</div>
+            <div class="feature-desc">Spawns and moves multiple vehicles across an intersection grid with realistic flow logic.</div>
         </div>
-        <div class="flex items-center gap-3 text-sm font-semibold">
-            <div class="bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700">
-                Active Vehicles: <span id="vehicleCount" class="text-cyan-400 font-extrabold text-base">0</span>
-            </div>
+        <div class="feature-card">
+            <div class="feature-icon">🚦</div>
+            <div class="feature-title">Traffic Light Control</div>
+            <div class="feature-desc">Simulates timed traffic light cycles with green, yellow, and red phases at intersections.</div>
         </div>
-    </header>
-
-    <!-- Main Canvas & Controls -->
-    <main class="max-w-5xl w-full mx-auto my-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- Simulation Canvas (2D Traffic Grid) -->
-        <div class="md:col-span-2 bg-slate-900/80 backdrop-blur-xl p-4 rounded-3xl border border-slate-800 shadow-2xl flex flex-col items-center justify-between relative overflow-hidden">
-            <canvas id="simCanvas" width="600" height="420" class="w-full h-auto bg-slate-950 rounded-2xl border border-slate-800 shadow-inner cursor-crosshair"></canvas>
+        <div class="feature-card">
+            <div class="feature-icon">🧯</div>
+            <div class="feature-title">Intersection Mapping</div>
+            <div class="feature-desc">Renders a top-down intersection map as the simulation grid with directional lanes.</div>
         </div>
-
-        <!-- Right Controls & Analytics -->
-        <div class="bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-800 shadow-xl space-y-6 flex flex-col justify-between">
-            <div>
-                <h2 class="text-lg font-bold text-cyan-200 mb-4 flex items-center gap-2">
-                    <i class="fas fa-sliders-h text-cyan-400"></i> Simulation Controls
-                </h2>
-
-                <div class="space-y-4">
-                    <button id="addCarBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-2xl shadow-lg shadow-cyan-600/25 active:scale-95 transition text-sm flex items-center justify-center gap-2">
-                        <i class="fas fa-car-side"></i> Add Vehicles (+5)
-                    </button>
-
-                    <button id="toggleLightBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-2xl shadow-lg shadow-emerald-600/25 active:scale-95 transition text-sm flex items-center justify-center gap-2">
-                        <i class="fas fa-traffic-light"></i> Switch Traffic Signals
-                    </button>
-
-                    <button id="resetSimBtn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 px-4 rounded-2xl border border-slate-700 active:scale-95 transition text-xs flex items-center justify-center gap-2">
-                        <i class="fas fa-redo"></i> Clear Grid & Reset
-                    </button>
-                </div>
-            </div>
-
-            <!-- Live Analytics -->
-            <div class="pt-4 border-t border-slate-800 space-y-3 text-sm">
-                <h3 class="font-bold text-slate-300">Live Traffic Metrics</h3>
-                <div class="flex justify-between text-xs text-slate-400">
-                    <span>Average Flow Speed:</span>
-                    <span id="avgSpeed" class="font-mono text-emerald-400 font-bold">42 km/h</span>
-                </div>
-                <div class="flex justify-between text-xs text-slate-400">
-                    <span>Signal Cycle:</span>
-                    <span id="signalState" class="font-bold text-emerald-400">NORTH-SOUTH GREEN</span>
-                </div>
-                <div class="flex justify-between text-xs text-slate-400">
-                    <span>Intersection Status:</span>
-                    <span id="flowStatus" class="font-bold text-cyan-400">Optimal Flow</span>
-                </div>
-            </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Flow Analytics</div>
+            <div class="feature-desc">Tracks and analyzes vehicle throughput, wait times, and congestion at intersections.</div>
         </div>
+    </div>
+</section>
 
-    </main>
+<section class="source-link-section">
+    <div class="source-card">
+        <h3>💬 This is a Desktop Application</h3>
+        <p>This simulation runs locally using Python and Pygame — it cannot run in a browser. To run it yourself, clone the repository and execute the main script.</p>
+        <a class="btn btn-primary" href="https://github.com/Worstace01/trafficSim-main" target="_blank">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
+            View on GitHub
+        </a>
+    </div>
+</section>
 
-    <footer class="max-w-5xl w-full mx-auto text-center text-xs text-slate-500 py-3">
-        &copy; 2026 Traffic Flow Simulator — Created by <a href="https://github.com/Worstace01" target="_blank" class="underline hover:text-slate-300">Andrie Deuna</a>
-    </footer>
+<footer>
+    &copy; 2026 Traffic Simulation &mdash; Built by <a href="https://github.com/Worstace01" target="_blank">Andrie Deuna</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/Worstace01/trafficSim-main" target="_blank">View on GitHub</a>
+</footer>
 
-    <script src="script.js"></script>
 </body>
 </html>
